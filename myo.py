@@ -10,6 +10,7 @@ from keras.wrappers.scikit_learn import KerasClassifier
 
 import pandas as pd
 import numpy as np
+import os 
 import re
 
 NUMBER_OF_FEATURES = 8
@@ -20,6 +21,8 @@ SEED = 7
 
 np.random.seed(SEED)
 
+
+
 def preprocessing(input_dir):
     def to_categorical(y):
         nb_classes = np.max(y)
@@ -27,7 +30,7 @@ def preprocessing(input_dir):
         for i in range(0, len(y)):
             Y[i, y[i]-1] = 1.
             return Y
-    print "Preprocessing files..."
+    print("Preprocessing files...")
     file_name_pattern = re.compile("Gesture(?P<gesture_type>\d+)_Example(?P<example_number>\d+).txt")
     X = []
     Y = []
@@ -53,7 +56,7 @@ def load_data(input_dir = "gesture_data/"):
     for dir_path, dir_names, file_names in walk(TEMP_DIR):
         if "X.npy" not in file_names or "Y.npy" not in file_names:
             return preprocessing(input_dir)
-    print "Loading files..."
+    print("Loading files...")
     return np.load(TEMP_DIR+"X.npy"), np.load(TEMP_DIR+"Y.npy")
 
 def build_model(first_layer_neurons, second_layer_neurons):
@@ -92,7 +95,7 @@ def predict(model, X_test, y_test = None):
     y_pred = np.array(map(get_class, predictions))
     if y_test is not None:
         y_true = np.array(map(get_class, y_test))
-        print accuracy_score(y_true, y_pred)
+        print(accuracy_score(y_true, y_pred))
     return y_pred
 
 def main():
@@ -108,4 +111,8 @@ def main():
     predict(model, X_test, y_test)
 
 if __name__ == '__main__':
+    if os.path.isdir('./temp') is False:
+        os.mkdir('./temp')
+    if os.path.isdir('./gesture_data') is False:
+        os.mkdir('./gesture_data')
     main()
